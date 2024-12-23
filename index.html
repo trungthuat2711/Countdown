@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đếm Ngược Tết Nguyên Đán 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #000;
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ẩn cuộn màn hình khi có hiệu ứng pháo hoa */
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 1.8rem;
+            color: #FFD700;
+        }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .countdown div {
+            flex: 1 1 calc(50% - 20px);
+            max-width: 100px;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: linear-gradient(to bottom, #FF4500, #1E90FF);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .countdown div span {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .countdown div {
+                flex: 1 1 calc(45% - 10px);
+                padding: 8px 12px;
+                max-width: none;
+            }
+            .countdown div span {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown div {
+                flex: 1 1 calc(100% - 20px);
+            }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Hiệu ứng pháo hoa nằm dưới nội dung */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworks"></canvas>
+    <h1>Đếm ngược Tết Nguyên Đán Ất Tỵ 2025</h1>
+    <div class="countdown">
+        <div>
+            <span id="days">0</span> NGÀY
+        </div>
+        <div>
+            <span id="hours">0</span> GIỜ
+        </div>
+        <div>
+            <span id="minutes">0</span> PHÚT
+        </div>
+        <div>
+            <span id="seconds">0</span> GIÂY
+        </div>
+    </div>
+
+    <script>
+        // Countdown Timer
+        function countdown() {
+            const tetDate = new Date('2025-01-29T00:00:00'); // Ngày Tết Nguyên Đán 2025
+            const now = new Date();
+            const timeDifference = tetDate - now;
+
+            if (timeDifference > 0) {
+                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+                document.getElementById('minutes').textContent = minutes;
+                document.getElementById('seconds').textContent = seconds;
+            } else {
+                document.querySelector('.countdown').innerHTML = '<h2>Chúc Mừng Năm Mới!</h2>';
+            }
+        }
+
+        setInterval(countdown, 1000);
+
+        // Fireworks Effect
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const fireworks = [];
+        const colors = ['#FF5733', '#FFBD33', '#33FF57', '#33FFBD', '#3357FF', '#BD33FF', '#FF33BD'];
+
+        class Firework {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.particles = [];
+
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push(new Particle(this.x, this.y, this.color));
+                }
+            }
+
+            update() {
+                this.particles.forEach(particle => particle.update());
+            }
+
+            draw() {
+                this.particles.forEach(particle => particle.draw());
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speed = Math.random() * 5 + 1;
+                this.angle = Math.random() * Math.PI * 2;
+                this.size = Math.random() * 3 + 1;
+                this.opacity = 1;
+                this.fadeRate = Math.random() * 0.03 + 0.01;
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.opacity -= this.fadeRate;
+
+                if (this.opacity < 0) {
+                    this.opacity = 0;
+                }
+            }
+
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function addFirework() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height / 2;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            fireworks.push(new Firework(x, y, color));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            fireworks.forEach((firework, index) => {
+                firework.update();
+                firework.draw();
+
+                // Loại bỏ pháo hoa đã mờ
+                if (firework.particles.every(p => p.opacity === 0)) {
+                    fireworks.splice(index, 1);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        setInterval(addFirework, 500); // Thêm pháo hoa mới mỗi 0.5 giây
+        animate();
+
+        // Điều chỉnh canvas khi thay đổi kích thước màn hình
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
